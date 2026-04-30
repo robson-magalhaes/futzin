@@ -17,7 +17,19 @@ class Group extends Model
         'monthly_fee',
         'status',
         'join_code',
+        'ranking_config',
     ];
+
+    /** Pesos padrão caso o grupo não tenha config definida */
+    public function rankingConfig(): array
+    {
+        return array_merge([
+            'win_weight'    => 3,
+            'penalty_weight' => 1,
+            'mvp_weight'    => 5,
+            'rating_weight' => 2,
+        ], $this->ranking_config ?? []);
+    }
 
     protected static function booted(): void
     {
@@ -32,7 +44,8 @@ class Group extends Model
     }
 
     protected $casts = [
-        'monthly_fee' => 'decimal:2',
+        'monthly_fee'    => 'decimal:2',
+        'ranking_config' => 'array',
     ];
 
     public function owner(): BelongsTo
@@ -43,6 +56,11 @@ class Group extends Model
     public function members(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'user_groups')->withPivot('role', 'presence_confirmed')->withTimestamps();
+    }
+
+    public function blockedUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'group_blocks')->withTimestamps();
     }
 
     public function matches(): HasMany
@@ -63,5 +81,10 @@ class Group extends Model
     public function posts(): HasMany
     {
         return $this->hasMany(GroupPost::class);
+    }
+
+    public function polls(): HasMany
+    {
+        return $this->hasMany(Poll::class);
     }
 }

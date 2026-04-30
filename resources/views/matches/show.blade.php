@@ -5,9 +5,14 @@
 @section('breadcrumb', 'Partidas / Detalhes')
 
 @section('header-actions')
-@if($userRole === 'admin' && $match->status !== 'finished')
-<a href="{{ route('matches.finish.form', $match) }}" class="bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium px-4 py-2 rounded-lg">Finalizar Partida</a>
-@endif
+<div class="flex items-center gap-2">
+    <a href="{{ route('matches.teams.form', $match) }}" class="bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium px-4 py-2 rounded-lg">
+        {{ $userRole === 'admin' ? 'Gerar Times' : 'Ver Times' }}
+    </a>
+    @if($userRole === 'admin' && $match->status !== 'finished')
+    <a href="{{ route('matches.finish.form', $match) }}" class="bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium px-4 py-2 rounded-lg">Finalizar Partida</a>
+    @endif
+</div>
 @endsection
 
 @section('content')

@@ -14,6 +14,7 @@ class PlayerRanking extends Model
         'group_id',
         'average_rating',
         'matches_played',
+        'wins',
         'goals',
         'assists',
         'mvp_count',

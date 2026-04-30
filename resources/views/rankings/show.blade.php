@@ -20,10 +20,10 @@
                     <th class="px-4 py-3">Pos.</th>
                     <th class="px-4 py-3">Jogador</th>
                     <th class="px-4 py-3">Partidas</th>
-                    <th class="px-4 py-3">Gols</th>
-                    <th class="px-4 py-3">Assist.</th>
-                    <th class="px-4 py-3">MVP</th>
+                    <th class="px-4 py-3">Vitórias</th>
+                    <th class="px-4 py-3">Votos MVP</th>
                     <th class="px-4 py-3">Média</th>
+                    <th class="px-4 py-3">Penalidades</th>
                     <th class="px-4 py-3">Pontos</th>
                 </tr>
                 </thead>
@@ -33,10 +33,10 @@
                     <td class="px-4 py-3 text-slate-300">#{{ $ranking->position }}</td>
                     <td class="px-4 py-3 text-white">{{ $ranking->user->name }}</td>
                     <td class="px-4 py-3 text-slate-300">{{ $ranking->matches_played }}</td>
-                    <td class="px-4 py-3 text-slate-300">{{ $ranking->goals }}</td>
-                    <td class="px-4 py-3 text-slate-300">{{ $ranking->assists }}</td>
+                    <td class="px-4 py-3 text-slate-300">{{ $ranking->wins }}</td>
                     <td class="px-4 py-3 text-slate-300">{{ $ranking->mvp_count }}</td>
                     <td class="px-4 py-3 text-slate-300">{{ number_format((float) $ranking->average_rating, 2, ',', '.') }}</td>
+                    <td class="px-4 py-3 {{ (float) $ranking->points_penalty < 0 ? 'text-red-400' : 'text-slate-300' }}">{{ number_format((float) $ranking->points_penalty, 2, ',', '.') }}</td>
                     <td class="px-4 py-3 text-emerald-400 font-semibold">{{ number_format((float) $ranking->total_score, 2, ',', '.') }}</td>
                 </tr>
                 @empty

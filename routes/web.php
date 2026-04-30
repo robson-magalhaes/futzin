@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\MatchController;
+use App\Http\Controllers\PollController;
 use App\Http\Controllers\RankingController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\PayoutController;
@@ -37,6 +38,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/groups/{group}/members/{user}', [GroupController::class, 'removeMember'])->name('groups.members.remove');
     Route::post('/groups/{group}/members/{user}/promote', [GroupController::class, 'promoteMember'])->name('groups.members.promote');
     Route::post('/groups/{group}/members/{user}/demote', [GroupController::class, 'demoteMember'])->name('groups.members.demote');
+    Route::post('/groups/{group}/members/{user}/block', [GroupController::class, 'blockMember'])->name('groups.members.block');
+    Route::post('/groups/{group}/members/{user}/unblock', [GroupController::class, 'unblockMember'])->name('groups.members.unblock');
+    Route::post('/groups/{group}/leave', [GroupController::class, 'leave'])->name('groups.leave');
     Route::post('/groups/{group}/generate-code', [GroupController::class, 'generateCode'])->name('groups.generate-code');
     Route::post('/groups/{group}/confirm-presence', [GroupController::class, 'confirmPresence'])->name('groups.confirm-presence');
 
@@ -50,6 +54,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/matches/{match}', [MatchController::class, 'show'])->name('matches.show');
     Route::get('/matches/{match}/finish', [MatchController::class, 'finishForm'])->name('matches.finish.form');
     Route::post('/matches/{match}/finish', [MatchController::class, 'finish'])->name('matches.finish');
+    Route::get('/matches/{match}/teams', [MatchController::class, 'teamsForm'])->name('matches.teams.form');
+    Route::post('/matches/{match}/teams', [MatchController::class, 'generateTeams'])->name('matches.teams.generate');
+
+    // Polls (Enquetes)
+    Route::post('/groups/{group}/polls', [PollController::class, 'store'])->name('polls.store');
+    Route::get('/polls/{poll}', [PollController::class, 'show'])->name('polls.show');
+    Route::post('/polls/{poll}/vote', [PollController::class, 'vote'])->name('polls.vote');
+    Route::post('/polls/{poll}/close', [PollController::class, 'close'])->name('polls.close');
 
     // Rankings
     Route::get('/groups/{group}/rankings', [RankingController::class, 'show'])->name('rankings.show');

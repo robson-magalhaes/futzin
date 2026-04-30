@@ -13,60 +13,34 @@
     <form method="POST" action="{{ route('matches.finish', $match) }}" class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-6">
         @csrf
 
+        @php
+        $teamA = $teams[0] ?? null;
+        $teamB = $teams[1] ?? null;
+        @endphp
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-                <label class="block text-sm text-slate-300 mb-1.5">Nome Time A</label>
-                <input type="text" name="team_a_name" value="{{ old('team_a_name', 'Time A') }}" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white">
+                <label class="block text-sm text-slate-300 mb-1.5">{{ $teamA?->name ?? 'Time A' }}</label>
+                <input type="number" name="team_a_goals" min="0" value="{{ old('team_a_goals', $teamA?->goals ?? 0) }}" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white">
             </div>
             <div>
-                <label class="block text-sm text-slate-300 mb-1.5">Gols Time A</label>
-                <input type="number" name="team_a_goals" min="0" value="{{ old('team_a_goals', 0) }}" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white">
-            </div>
-            <div>
-                <label class="block text-sm text-slate-300 mb-1.5">Nome Time B</label>
-                <input type="text" name="team_b_name" value="{{ old('team_b_name', 'Time B') }}" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white">
-            </div>
-            <div>
-                <label class="block text-sm text-slate-300 mb-1.5">Gols Time B</label>
-                <input type="number" name="team_b_goals" min="0" value="{{ old('team_b_goals', 0) }}" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white">
+                <label class="block text-sm text-slate-300 mb-1.5">{{ $teamB?->name ?? 'Time B' }}</label>
+                <input type="number" name="team_b_goals" min="0" value="{{ old('team_b_goals', $teamB?->goals ?? 0) }}" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white">
             </div>
         </div>
 
         <div>
-            <h3 class="text-white font-semibold mb-3">Estatísticas dos Jogadores</h3>
+            <h3 class="text-white font-semibold mb-3">Penalidades da Partida</h3>
+            <p class="text-slate-500 text-xs mb-3">Apenas registre cartões. O ranking usa votação das enquetes, vitórias e penalidades.</p>
             <div class="space-y-3">
-                @foreach($members as $index => $member)
-                <div class="bg-slate-800/60 rounded-lg p-4 grid grid-cols-1 md:grid-cols-6 gap-3 items-end">
-                    <input type="hidden" name="players[{{ $index }}][user_id]" value="{{ $member->id }}">
-
-                    <div class="md:col-span-2">
-                        <label class="block text-xs text-slate-400 mb-1">Jogador</label>
-                        <p class="text-sm text-slate-100">{{ $member->name }}</p>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs text-slate-400 mb-1">Time</label>
-                        <select name="players[{{ $index }}][team]" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
-                            <option value="a">A</option>
-                            <option value="b">B</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs text-slate-400 mb-1">Gols</label>
-                        <input type="number" min="0" name="players[{{ $index }}][goals]" value="0" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs text-slate-400 mb-1">Assist.</label>
-                        <input type="number" min="0" name="players[{{ $index }}][assists]" value="0" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
-                    </div>
-
-                    <div class="flex gap-3 md:justify-end">
-                        <label class="inline-flex items-center gap-1.5 text-xs text-slate-300"><input type="checkbox" name="players[{{ $index }}][is_mvp]"> MVP</label>
-                        <label class="inline-flex items-center gap-1.5 text-xs text-slate-300"><input type="checkbox" name="players[{{ $index }}][yellow_card]"> Am</label>
-                        <label class="inline-flex items-center gap-1.5 text-xs text-slate-300"><input type="checkbox" name="players[{{ $index }}][red_card]"> Vm</label>
-                    </div>
+                @foreach($members as $member)
+                <div class="bg-slate-800/60 rounded-lg p-4 grid grid-cols-1 md:grid-cols-2 gap-3 items-center">
+                    <p class="text-sm text-slate-100">{{ $member->name }}</p>
+                    <select name="penalties[{{ $member->id }}]" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
+                        <option value="none">Sem penalidade</option>
+                        <option value="yellow_card">Cartão amarelo (-1)</option>
+                        <option value="red_card">Cartão vermelho (-3)</option>
+                    </select>
                 </div>
                 @endforeach
             </div>

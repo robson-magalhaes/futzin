@@ -30,6 +30,11 @@ class User extends Authenticatable
         return $this->belongsToMany(Group::class, 'user_groups')->withPivot('role', 'presence_confirmed')->withTimestamps();
     }
 
+    public function blockedGroups()
+    {
+        return $this->belongsToMany(Group::class, 'group_blocks')->withTimestamps();
+    }
+
     public function ownedGroups()
     {
         return $this->hasMany(Group::class);

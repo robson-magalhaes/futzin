@@ -47,8 +47,10 @@ class GroupController extends Controller
         $group->load([
             'owner',
             'members',
+            'blockedUsers:id,name,email',
             'matches' => fn($q) => $q->orderByDesc('scheduled_at')->limit(5),
             'posts' => fn($q) => $q->with('user:id,name,position')->orderByDesc('created_at')->limit(20),
+            'polls' => fn($q) => $q->with('creator:id,name')->orderByDesc('created_at')->limit(10),
         ]);
 
         $userRole = $member->pivot->role;
@@ -68,13 +70,30 @@ class GroupController extends Controller
         $this->authorize('update', $group);
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name'        => 'required|string|max:255',
             'description' => 'nullable|string|max:500',
             'monthly_fee' => 'required|numeric|min:0',
-            'status' => 'required|in:active,inactive',
+            'status'      => 'required|in:active,inactive',
+            'ranking_config.win_weight'     => 'nullable|numeric|min:0|max:100',
+            'ranking_config.penalty_weight' => 'nullable|numeric|min:0|max:100',
+            'ranking_config.mvp_weight'     => 'nullable|numeric|min:0|max:100',
+            'ranking_config.rating_weight'  => 'nullable|numeric|min:0|max:100',
         ]);
 
-        $group->update($validated);
+        $rankingConfig = array_filter([
+            'win_weight'     => isset($validated['ranking_config']['win_weight'])     ? (float) $validated['ranking_config']['win_weight']     : null,
+            'penalty_weight' => isset($validated['ranking_config']['penalty_weight']) ? (float) $validated['ranking_config']['penalty_weight'] : null,
+            'mvp_weight'     => isset($validated['ranking_config']['mvp_weight'])     ? (float) $validated['ranking_config']['mvp_weight']     : null,
+            'rating_weight'  => isset($validated['ranking_config']['rating_weight'])  ? (float) $validated['ranking_config']['rating_weight']  : null,
+        ], fn($v) => $v !== null);
+
+        $group->update([
+            'name'           => $validated['name'],
+            'description'    => $validated['description'],
+            'monthly_fee'    => $validated['monthly_fee'],
+            'status'         => $validated['status'],
+            'ranking_config' => $rankingConfig ?: null,
+        ]);
 
         return redirect()->route('groups.show', $group)
             ->with('success', 'Grupo atualizado com sucesso!');
@@ -105,6 +124,10 @@ class GroupController extends Controller
             return back()->withErrors(['join_code' => 'Você já é membro deste grupo.']);
         }
 
+        if ($group->blockedUsers()->where('user_id', auth()->id())->exists()) {
+            return back()->withErrors(['join_code' => 'Você foi bloqueado e não pode entrar neste grupo.']);
+        }
+
         $group->members()->attach(auth()->id(), ['role' => 'player']);
 
         return redirect()->route('groups.show', $group)
@@ -131,9 +154,66 @@ class GroupController extends Controller
     public function removeMember(Group $group, User $user)
     {
         $this->authorize('update', $group);
+
+        if ($user->id === $group->user_id) {
+            return back()->withErrors(['user' => 'Não é possível remover o dono do grupo.']);
+        }
+
+        if ($user->id === auth()->id()) {
+            return back()->withErrors(['user' => 'Use a opção de sair do grupo.']);
+        }
+
         $group->members()->detach($user->id);
 
         return back()->with('success', 'Membro removido com sucesso!');
+    }
+
+    public function blockMember(Group $group, User $user)
+    {
+        $this->authorize('update', $group);
+
+        if ($user->id === $group->user_id) {
+            return back()->withErrors(['user' => 'Não é possível bloquear o dono do grupo.']);
+        }
+
+        $member = $group->members()->where('user_id', $user->id)->first();
+        if ($member && $member->pivot->role === 'admin') {
+            return back()->withErrors(['user' => 'Não é possível bloquear outro administrador.']);
+        }
+
+        $group->blockedUsers()->syncWithoutDetaching([$user->id]);
+        $group->members()->detach($user->id);
+
+        return back()->with('success', "{$user->name} foi bloqueado do grupo.");
+    }
+
+    public function unblockMember(Group $group, User $user)
+    {
+        $this->authorize('update', $group);
+        $group->blockedUsers()->detach($user->id);
+
+        return back()->with('success', "{$user->name} foi desbloqueado.");
+    }
+
+    public function leave(Group $group)
+    {
+        $member = $group->members()->where('user_id', auth()->id())->first();
+        abort_unless($member, 403, 'Você não é membro deste grupo.');
+
+        if ($group->user_id === auth()->id()) {
+            return back()->withErrors(['group' => 'O dono do grupo não pode sair. Transfira a administração antes.']);
+        }
+
+        if ($member->pivot->role === 'admin') {
+            $adminCount = $group->members()->wherePivot('role', 'admin')->count();
+            if ($adminCount <= 1) {
+                return back()->withErrors(['group' => 'Deve existir ao menos um administrador no grupo.']);
+            }
+        }
+
+        $group->members()->detach(auth()->id());
+
+        return redirect()->route('groups.index')->with('success', 'Você saiu do grupo com sucesso.');
     }
 
     public function promoteMember(Group $group, User $user)
