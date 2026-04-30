@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Futzin') — Futzin</title>
     @vite('resources/css/app.css')
+    <script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
 </head>
 <body class="h-full bg-slate-950 text-white">
@@ -117,13 +118,14 @@
             @if(!request()->routeIs('dashboard'))
             <button
                 type="button"
-                onclick="if (window.history.length > 1) { window.history.back(); } else { window.location.href='{{ route('dashboard') }}'; }"
-                class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                onclick="futzinBack('{{ route('dashboard') }}')"
+                class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
                 title="Voltar"
                 aria-label="Voltar">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                 </svg>
+                <span class="hidden sm:inline text-sm font-medium">Voltar</span>
             </button>
             @endif
 
@@ -137,45 +139,78 @@
             @yield('header-actions')
         </header>
 
-        {{-- Flash messages --}}
-        @if(session('success') || session('error') || $errors->any())
-        <div class="px-4 lg:px-6 pt-4 space-y-2">
-            @if(session('success'))
-            <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)"
-                 class="flex items-center gap-3 bg-emerald-900/30 border border-emerald-700/40 text-emerald-300 px-4 py-3 rounded-xl text-sm">
-                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                </svg>
-                {{ session('success') }}
-            </div>
-            @endif
-            @if(session('error'))
-            <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 6000)"
-                 class="flex items-center gap-3 bg-red-900/30 border border-red-700/40 text-red-300 px-4 py-3 rounded-xl text-sm">
-                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-                {{ session('error') }}
-            </div>
-            @endif
-            @if($errors->any())
-            <div class="bg-red-900/30 border border-red-700/40 text-red-300 px-4 py-3 rounded-xl text-sm">
-                <p class="font-medium mb-1">Por favor corrija os erros abaixo:</p>
-                <ul class="list-disc list-inside space-y-0.5">
-                    @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-            @endif
-        </div>
-        @endif
-
         {{-- Page content --}}
         <main class="flex-1 overflow-y-auto p-4 lg:p-6">
             @yield('content')
         </main>
     </div>
 </div>
+<script>
+    function futzinBack(fallbackUrl) {
+        const hasHistory = window.history.length > 1;
+        const hasReferrer = Boolean(document.referrer);
+
+        if (hasHistory && hasReferrer) {
+            sessionStorage.setItem('futzin:reload-on-back', '1');
+            window.history.back();
+            return;
+        }
+
+        window.location.href = fallbackUrl;
+    }
+
+    window.addEventListener('pageshow', function (event) {
+        const shouldReload = sessionStorage.getItem('futzin:reload-on-back') === '1';
+        const navEntry = performance.getEntriesByType('navigation')[0];
+        const isBackForward = navEntry && navEntry.type === 'back_forward';
+
+        if (shouldReload && (event.persisted || isBackForward)) {
+            sessionStorage.removeItem('futzin:reload-on-back');
+            window.location.reload();
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        if (typeof Swal === 'undefined') {
+            return;
+        }
+
+        @if(session('success'))
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: @json(session('success')),
+            showConfirmButton: false,
+            timer: 3200,
+            timerProgressBar: true,
+            background: '#0f172a',
+            color: '#e2e8f0'
+        });
+        @endif
+
+        @if(session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Ops!',
+            text: @json(session('error')),
+            confirmButtonColor: '#ef4444',
+            background: '#0f172a',
+            color: '#e2e8f0'
+        });
+        @endif
+
+        @if($errors->any())
+        Swal.fire({
+            icon: 'warning',
+            title: 'Confira os dados',
+            text: @json($errors->first()),
+            confirmButtonColor: '#10b981',
+            background: '#0f172a',
+            color: '#e2e8f0'
+        });
+        @endif
+    });
+</script>
 </body>
 </html>

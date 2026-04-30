@@ -52,7 +52,11 @@ class MatchController extends Controller
     public function finishForm(FootballMatch $match)
     {
         abort_if(!$this->isGroupAdmin($match), 403, 'Apenas administradores do grupo podem finalizar partidas.');
-        abort_if($match->status === 'finished', 400, 'Partida já foi finalizada.');
+        if ($match->status === 'finished') {
+            return redirect()
+                ->route('matches.show', $match)
+                ->with('error', 'Partida já foi finalizada.');
+        }
 
         $members = $match->group->members()->get();
         $teams = $match->teams()->orderBy('id')->get();
@@ -63,7 +67,11 @@ class MatchController extends Controller
     public function finish(Request $request, FootballMatch $match)
     {
         abort_if(!$this->isGroupAdmin($match), 403, 'Apenas administradores do grupo podem finalizar partidas.');
-        abort_if($match->status === 'finished', 400, 'Partida já foi finalizada.');
+        if ($match->status === 'finished') {
+            return redirect()
+                ->route('matches.show', $match)
+                ->with('error', 'Partida já foi finalizada.');
+        }
 
         $validated = $request->validate([
             'team_a_goals' => 'required|integer|min:0',

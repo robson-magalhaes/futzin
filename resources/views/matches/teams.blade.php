@@ -11,16 +11,7 @@
 @section('content')
 <div class="max-w-4xl mx-auto space-y-6">
 
-    {{-- Alerts --}}
     @if($userRole === 'admin')
-    @if(session('success'))
-    <div class="bg-emerald-900/50 border border-emerald-700 text-emerald-300 rounded-xl px-4 py-3 text-sm">{{ session('success') }}</div>
-    @endif
-    @if($errors->any())
-    <div class="bg-red-900/50 border border-red-700 text-red-300 rounded-xl px-4 py-3 text-sm">
-        <ul class="list-disc list-inside space-y-1">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul>
-    </div>
-    @endif
 
     {{-- Formulário de geração --}}
     <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">

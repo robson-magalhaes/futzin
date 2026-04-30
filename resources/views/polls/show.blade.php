@@ -41,18 +41,6 @@
         </div>
     </div>
 
-    @if(session('success'))
-    <div class="bg-emerald-900/50 border border-emerald-700 text-emerald-300 rounded-xl px-4 py-3 text-sm">{{ session('success') }}</div>
-    @endif
-    @if(session('error'))
-    <div class="bg-red-900/50 border border-red-700 text-red-300 rounded-xl px-4 py-3 text-sm">{{ session('error') }}</div>
-    @endif
-    @if($errors->any())
-    <div class="bg-red-900/50 border border-red-700 text-red-300 rounded-xl px-4 py-3 text-sm">
-        <ul class="list-disc list-inside space-y-1">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul>
-    </div>
-    @endif
-
     {{-- ============ FORMULÁRIO DE VOTO ============ --}}
     @if($poll->isOpen() && !$userVote)
 

@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Criar conta — Futzin</title>
     @vite('resources/css/app.css')
+    <script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="h-full bg-slate-950 text-white">
 <div class="min-h-full relative flex items-center justify-center p-6">
@@ -21,12 +22,6 @@
         <p class="text-slate-400 text-sm mb-8">Comece a organizar seu futebol hoje mesmo</p>
 
         <div class="bg-slate-900/75 backdrop-blur border border-slate-800 rounded-2xl p-6 shadow-2xl shadow-black/20">
-            @if($errors->any())
-            <div class="mb-5 rounded-xl border border-red-700/40 bg-red-900/20 px-3.5 py-2.5 text-sm text-red-300">
-                {{ $errors->first() }}
-            </div>
-            @endif
-
             <form method="POST" action="{{ route('register') }}" class="space-y-5">
                 @csrf
 
@@ -105,5 +100,23 @@
         </p>
     </div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        if (typeof Swal === 'undefined') {
+            return;
+        }
+
+        @if($errors->any())
+        Swal.fire({
+            icon: 'warning',
+            title: 'Não foi possível cadastrar',
+            text: @json($errors->first()),
+            confirmButtonColor: '#10b981',
+            background: '#0f172a',
+            color: '#e2e8f0'
+        });
+        @endif
+    });
+</script>
 </body>
 </html>
