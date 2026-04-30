@@ -178,10 +178,10 @@ futzin/
 │   ├── DELIVERY_SUMMARY.md        # Sumário de entrega
 │   └── ARCHITECTURE.md            # Este arquivo
 │
-├── 🚀 Setup Scripts
-│   ├── setup.bat                  # Windows
-│   ├── setup.sh                   # Linux/Mac
-│   └── .env.example
+├── 🚀 Setup de Ambiente
+│   ├── .env.example               # Template de ambiente
+│   ├── README.md                  # Passo a passo manual
+│   └── QUICK_START.md             # Guia rápido
 │
 └── public/
     ├── index.php                  # Laravel entry point

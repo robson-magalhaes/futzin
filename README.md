@@ -20,11 +20,14 @@ Um sistema completo para gestão de partidas de futebol, ranking de jogadores e 
 ## 📋 Cálculo de Ranking
 
 ```
-Pontuação final = (média de notas × 2) + (gols × 3) + (assistências × 1.5) + (MVPs × 5) + penalidades
+Pontuação final = (média de notas das enquetes × peso_nota)
+				+ (votos MVP recebidos × peso_mvp)
+				+ (vitórias × peso_vitória)
+				+ (penalidades negativas × peso_penalidade)
 
 Penalidades:
 - Cartão amarelo: -1 ponto
-- Cartão vermelho: -3 pontos + status de expulso
+- Cartão vermelho: -3 pontos
 ```
 
 ## 💰 Planos de Assinatura
@@ -45,11 +48,9 @@ Penalidades:
 - **PHP 8.3+**
 
 ### Frontend
-- **Vue.js 3** (SPA)
-- **Vue Router 4** para navegação
-- **Pinia** para gerenciamento de estado
-- **Axios** para requisições HTTP
+- **Laravel Blade** (fullstack server-rendered)
 - **Tailwind CSS 4** para estilos
+- **Vite** para build de assets
 
 ## 📦 Requisitos
 
@@ -60,6 +61,55 @@ Penalidades:
 - Composer
 
 ## 🚀 Instalação Rápida
+
+## 🚂 Deploy na Railway
+
+Este projeto já está preparado para Railway com os arquivos:
+- `railway.json`
+- `nixpacks.toml`
+
+### Passo a passo
+
+1. Crie um projeto na Railway e conecte este repositório.
+2. Adicione um serviço MySQL na Railway.
+3. Configure as variáveis de ambiente no serviço da aplicação (base: `.env.railway.example`):
+
+```env
+APP_NAME=Futzin
+APP_ENV=production
+APP_DEBUG=false
+APP_KEY=base64:...   # gerar com php artisan key:generate --show
+APP_URL=https://SEU_DOMINIO.railway.app
+
+LOG_CHANNEL=stack
+LOG_LEVEL=error
+
+DB_CONNECTION=mysql
+DB_HOST=SEU_HOST_MYSQL_RAILWAY
+DB_PORT=3306
+DB_DATABASE=SEU_DB
+DB_USERNAME=SEU_USER
+DB_PASSWORD=SUA_SENHA
+
+SESSION_DRIVER=database
+CACHE_STORE=database
+QUEUE_CONNECTION=database
+```
+
+4. Faça o deploy inicial.
+5. Após o primeiro deploy, rode as migrations no shell da Railway:
+
+```bash
+php artisan migrate --force
+```
+
+Opcional (seed de dados):
+
+```bash
+php artisan db:seed --force
+```
+
+Observação: o start command usa `php artisan serve` escutando em `0.0.0.0:$PORT`, compatível com Railway.
 
 ### ⚠️ Pré-requisito: MySQL
 
@@ -78,30 +128,8 @@ sudo apt-get install mysql-server
 sudo systemctl start mysql
 ```
 
-### Setup Automático
-
-#### Windows
-```bash
-.\setup.bat
-```
-
-#### Linux/Mac
-```bash
-chmod +x setup.sh
-./setup.sh
-```
-
-**O script vai:**
-- Criar banco de dados `futzin`
-- Instalar dependências PHP e npm
-- Rodar migrations
-- Popular dados de teste
-
 ### Manual
 ```bash
-# Criar banco de dados
-mysql -u root -p < create_database.sql
-
 # Setup Laravel
 composer install
 cp .env.example .env
@@ -112,7 +140,9 @@ php artisan db:seed
 # Setup Frontend
 npm install
 npm run build
-composer dev
+
+# Subir app local
+php artisan serve
 ```
 
 Para logs avançados com Laravel Pail (somente Linux/macOS com `pcntl`):
@@ -123,8 +153,7 @@ composer dev:with-logs
 
 ## 🎮 Usando
 
-- **Frontend**: http://localhost:5173
-- **API**: http://localhost:8000/api
+- **Aplicação**: http://localhost:8000
 
 **Credenciais de teste:**
 - Email: `admin@futzin.com`

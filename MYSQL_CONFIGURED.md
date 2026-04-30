@@ -10,14 +10,11 @@
 ### ✅ Arquivos Atualizados
 1. **`.env`** - Banco alterado de `laravel` para `futzin`
 2. **`.env.example`** - Referência atualizada para MySQL
-3. **`setup.bat`** - Adicionado script SQL e verificações MySQL
-4. **`setup.sh`** - Adicionado script SQL e verificações MySQL
-5. **`README.md`** - Adicionadas instruções MySQL
-6. **`QUICK_START.md`** - Adicionado troubleshooting MySQL
+3. **`README.md`** - Instruções MySQL atualizadas para setup manual
+4. **`QUICK_START.md`** - Troubleshooting MySQL atualizado
 
 ### ✅ Arquivos Criados
 1. **`MYSQL_SETUP.md`** - Guia completo de configuração MySQL
-2. **`create_database.sql`** - Script SQL para criar banco automaticamente
 
 ---
 
@@ -55,38 +52,35 @@ brew services start mysql
 sudo systemctl start mysql
 ```
 
-### 2️⃣ Execute Setup
+### 2️⃣ Execute Setup Manual
 
-**Windows:**
 ```bash
-.\setup.bat
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate --force
+php artisan db:seed --force
+npm install
+npm run build
 ```
 
-**Mac/Linux:**
-```bash
-chmod +x setup.sh
-./setup.sh
-```
-
-### 3️⃣ Inicie Frontend
+### 3️⃣ Inicie Aplicação
 
 ```bash
-npm run dev
+php artisan serve
 ```
 
 ---
 
-## 📋 O que o Setup Faz
+## 📋 O que o Setup Atual Faz
 
-1. ✅ Cria banco de dados `futzin`
-2. ✅ Instala PHP dependencies (composer install)
-3. ✅ Cria arquivo `.env`
-4. ✅ Gera chave da aplicação
-5. ✅ Roda 12 migrations
-6. ✅ Popula dados de teste (seeder)
-7. ✅ Publica configurações Sanctum
-8. ✅ Instala npm dependencies
-9. ✅ Build frontend assets
+1. ✅ Instala dependências PHP (composer install)
+2. ✅ Cria arquivo `.env`
+3. ✅ Gera chave da aplicação
+4. ✅ Roda migrations
+5. ✅ Popula dados de teste (seeder)
+6. ✅ Instala dependências npm
+7. ✅ Build frontend assets
 
 ---
 
@@ -136,9 +130,10 @@ DB_PASSWORD=sua_senha_aqui
 ```
 
 ### "Unknown database 'futzin'"
-Execute manualmente:
+Crie o banco manualmente:
 ```bash
-mysql -u root -p < create_database.sql
+mysql -u root -p -e "CREATE DATABASE futzin CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+php artisan migrate --force
 ```
 
 Para mais detalhes, consulte [MYSQL_SETUP.md](./MYSQL_SETUP.md).
@@ -158,9 +153,9 @@ Para mais detalhes, consulte [MYSQL_SETUP.md](./MYSQL_SETUP.md).
 ## ✅ Próximos Passos
 
 1. **Instale MySQL** (se não tiver)
-2. **Execute `.\setup.bat`** (Windows) ou `./setup.sh` (Mac/Linux)
-3. **Execute `npm run dev`**
-4. **Acesse http://localhost:5173**
+2. **Execute setup manual** (`composer install`, `php artisan migrate --force`, `npm run build`)
+3. **Execute `php artisan serve`**
+4. **Acesse http://localhost:8000**
 5. **Faça login com `admin@futzin.com` / `password`**
 
 ---

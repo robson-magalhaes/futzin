@@ -479,22 +479,18 @@ database/seeders/
 
 ---
 
-## 🚀 Setup Scripts (2 files)
+## 🚀 Setup de Ambiente (manual)
 
 ```
-✨ NEW setup.bat (Windows)
+✨ UPDATED README.md / QUICK_START.md
    ├─ composer install
-   ├─ npm install
    ├─ cp .env.example .env
    ├─ php artisan key:generate
-   ├─ php artisan storage:link
    ├─ php artisan migrate --force
-   ├─ php artisan db:seed
-   ├─ php artisan vendor:publish (Sanctum)
-   └─ npm run build
-
-✨ NEW setup.sh (Mac/Linux)
-   └─ Mesmo que setup.bat, com sintaxe Unix
+   ├─ php artisan db:seed --force
+   ├─ npm install
+   ├─ npm run build
+   └─ php artisan serve
 ```
 
 ---
@@ -523,7 +519,7 @@ database/seeders/
 | Services | 1 | ✨ NEW |
 | Config Files | 6 | 🔄 UPDATED |
 | Seeders | 1 | 🔄 UPDATED |
-| Setup Scripts | 2 | ✨ NEW |
+| Setup de Ambiente | 1 | 🔄 UPDATED |
 | Documentation | 5 | ✨ NEW |
 | **TOTAL** | **70+** | - |
 
@@ -587,8 +583,7 @@ d:\ProjetosWeb\futzin/
 ├── 📚 ARCHITECTURE.md             (Diagrama técnico)
 ├── 📚 VALIDATION_CHECKLIST.md     (Checklist de validação)
 │
-├── 🚀 setup.bat                   (Windows setup)
-├── 🚀 setup.sh                    (Unix setup)
+├── 🚀 README.md / QUICK_START.md  (Setup manual)
 └── .env.example                   (Template .env)
 ```
 

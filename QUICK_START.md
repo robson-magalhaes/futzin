@@ -11,44 +11,29 @@
 
 ## 1️⃣ Clone e Setup (2-5 minutos)
 
-### Windows
-```batch
-cd d:\ProjetosWeb\futzin
-.\setup.bat
-```
-
-### Mac/Linux
+### Windows / Mac / Linux
 ```bash
-cd ~/projetos/futzin
-chmod +x setup.sh
-./setup.sh
+cd d:\ProjetosWeb\futzin
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate --force
+php artisan db:seed --force
+npm install
+npm run build
 ```
-
-**O script vai:**
-- ✓ Verificar se MySQL está rodando
-- ✓ Criar banco de dados `futzin`
-- ✓ Instalar dependências (PHP e npm)
-- ✓ Rodar migrations
-- ✓ Popular dados de teste
-- ✓ Build frontend assets
 
 ---
 
 ## 2️⃣ Inicie o Desenvolvimento
 
 ```bash
-composer dev
-```
-
-Será exibido:
-```
-➜  Local:   http://localhost:5173/
-➜  press h to show help
+php artisan serve
 ```
 
 ## 3️⃣ Primeira Sessão
 
-Abra http://localhost:5173 no navegador
+Abra http://localhost:8000 no navegador
 
 **Login com:**
 - Email: `admin@futzin.com`
@@ -91,10 +76,9 @@ Tabela com:
    - As migrações já foram rodadas
    - Se criar nova migration: `php artisan migrate`
 
-2. **Frontend** (Vue)
-   - Edite em `resources/js/`
-   - Hot reload automático com Vite
-   - Tailwind com JIT compilation
+2. **Frontend** (Blade + Tailwind)
+  - Edite em `resources/views/`
+  - Compile assets com `npm run build` quando necessário
 
 ### Rodar Comandos Úteis
 
@@ -152,11 +136,11 @@ Authorization: Bearer {seu_token}
 
 ## 📱 Testar no Mobile
 
-Seu frontend está em `http://localhost:5173`
+Sua aplicação está em `http://localhost:8000`
 
 Para acessar do celular:
 1. Descubra seu IP local: `ipconfig` (Windows) ou `ifconfig` (Mac/Linux)
-2. No celular acesse: `http://SEU_IP:5173`
+2. No celular acesse: `http://SEU_IP:8000`
 
 ---
 
@@ -202,9 +186,10 @@ mysql -u root -e "FLUSH PRIVILEGES;"
 
 ### "Unknown database 'futzin'"
 
-Execute manualmente:
+Crie o banco manualmente e rode as migrations:
 ```bash
-mysql -u root -p < create_database.sql
+mysql -u root -p -e "CREATE DATABASE futzin CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+php artisan migrate --force
 ```
 
 ### "Collation mismatch"
@@ -234,8 +219,8 @@ Instale Node.js de https://nodejs.org
 Instale Composer de https://getcomposer.org
 
 ### "Erro de CORS"
-O backend responde em porta 8000, frontend em 5173  
-Se mudar portas, atualize URLs em `resources/js/services/api.js`
+No fluxo Blade padrão, app e backend rodam no mesmo host/porta.  
+Se você tiver integração externa, revise `APP_URL` no `.env`.
 
 ### "Migrations failed"
 ```bash

@@ -47,7 +47,6 @@ class GroupController extends Controller
         $group->load([
             'owner',
             'members',
-            'blockedUsers:id,name,email',
             'matches' => fn($q) => $q->orderByDesc('scheduled_at')->limit(5),
             'posts' => fn($q) => $q->with('user:id,name,position')->orderByDesc('created_at')->limit(20),
             'polls' => fn($q) => $q->with('creator:id,name', 'match:id,title,scheduled_at,status')->orderByDesc('created_at')->limit(30),

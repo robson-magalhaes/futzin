@@ -98,8 +98,7 @@ Um **sistema SaaS completo de futebol** (estilo Cartola) com frontend moderno e 
 
 #### 4️⃣ Documentação
 - [x] README.md completo
-- [x] Setup.bat (Windows)
-- [x] Setup.sh (Linux/Mac)
+- [x] Setup manual documentado (Windows/Linux/Mac)
 - [x] Este documento de sumário
 
 ---
@@ -109,19 +108,31 @@ Um **sistema SaaS completo de futebol** (estilo Cartola) com frontend moderno e 
 ### Quick Start (Windows)
 ```bash
 cd d:\ProjetosWeb\futzin
-.\setup.bat
-npm run dev
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate --force
+php artisan db:seed --force
+npm install
+npm run build
+php artisan serve
 ```
 
 ### Quick Start (Mac/Linux)
 ```bash
 cd ~/projetos/futzin
-./setup.sh
-npm run dev
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate --force
+php artisan db:seed --force
+npm install
+npm run build
+php artisan serve
 ```
 
 ### Acesso
-- Frontend: http://localhost:5173
+- Aplicação: http://localhost:8000
 - API: http://localhost:8000/api
 - Credenciais: `admin@futzin.com` / `password`
 

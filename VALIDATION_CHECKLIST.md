@@ -6,7 +6,7 @@ Use este guia para validar que tudo está funcionando corretamente após a insta
 
 ## 1️⃣ Setup Inicial
 
-- [ ] Executou `.\setup.bat` (Windows) ou `./setup.sh` (Mac/Linux)
+- [ ] Executou setup manual (`composer install`, `php artisan migrate --force`, `npm run build`)
 - [ ] Sem erros de Composer
 - [ ] Sem erros de npm
 - [ ] Arquivo `.env` foi criado

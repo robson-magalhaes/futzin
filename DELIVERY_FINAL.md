@@ -49,9 +49,8 @@ Um **sistema SaaS profissional e escalável** de gestão de futebol com:
 - VALIDATION_CHECKLIST.md - Testes e validação
 - FILE_INVENTORY.md - Inventário completo de arquivos
 
-### ✅ Scripts de Setup
-- setup.bat (Windows)
-- setup.sh (Mac/Linux)
+### ✅ Setup de Ambiente
+- Fluxo manual documentado (Windows/Mac/Linux)
 
 ---
 
@@ -59,39 +58,37 @@ Um **sistema SaaS profissional e escalável** de gestão de futebol com:
 
 ### 1️⃣ Execute o Setup (2 minutos)
 
-**Windows:**
 ```bash
 cd d:\ProjetosWeb\futzin
-.\setup.bat
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate --force
+php artisan db:seed --force
+npm install
+npm run build
 ```
 
-**Mac/Linux:**
-```bash
-cd ~/projetos/futzin
-./setup.sh
-```
-
-Este script vai:
+Esse fluxo vai:
 - ✓ Instalar todas as dependências (PHP/npm)
-- ✓ Configurar banco de dados
-- ✓ Rodar migrations
-- ✓ Popular dados de teste
-- ✓ Publicar configurações
+- ✓ Configurar aplicação e banco
+- ✓ Rodar migrations e seeders
+- ✓ Gerar assets de frontend
 
 ### 2️⃣ Inicie o Servidor
 
 ```bash
-npm run dev
+php artisan serve
 ```
 
 A saída será:
 ```
-➜  Local:   http://localhost:5173/
+INFO  Server running on [http://127.0.0.1:8000].
 ```
 
 ### 3️⃣ Faça Login
 
-Abra http://localhost:5173 no navegador:
+Abra http://localhost:8000 no navegador:
 - **Email**: `admin@futzin.com`
 - **Senha**: `password`
 
@@ -111,7 +108,7 @@ futzin/
 ├── 🎯 resources/js/pages/           (8 páginas Vue)
 ├── 🎯 routes/api.php                (~20 endpoints)
 ├── 📚 README.md, QUICK_START.md, DELIVERY_SUMMARY.md
-├── 🚀 setup.bat, setup.sh
+├── 🚀 setup manual (README/QUICK_START)
 └── 📦 package.json, composer.json, vite.config.js
 ```
 
@@ -339,9 +336,9 @@ Um **sistema SaaS profissional** pronto para:
 
 ### COMO USAR
 
-1. Execute `.\setup.bat` (Windows) ou `./setup.sh` (Mac/Linux)
-2. Execute `npm run dev`
-3. Acesse http://localhost:5173
+1. Execute setup manual (`composer install`, `php artisan migrate --force`, `npm run build`)
+2. Execute `php artisan serve`
+3. Acesse http://localhost:8000
 4. Faça login com `admin@futzin.com` / `password`
 5. Explore o sistema!
 
