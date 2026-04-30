@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('groups', function (Blueprint $table) {
-            $table->string('join_code')->unique()->after('status');
-        });
+        if (!Schema::hasColumn('groups', 'join_code')) {
+            Schema::table('groups', function (Blueprint $table) {
+                $table->string('join_code', 8)->unique()->nullable()->after('status');
+            });
+        }
     }
 
     /**
@@ -21,8 +23,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('groups', function (Blueprint $table) {
-            $table->dropColumn('join_code');
-        });
+        if (Schema::hasColumn('groups', 'join_code')) {
+            Schema::table('groups', function (Blueprint $table) {
+                $table->dropColumn('join_code');
+            });
+        }
     }
 };
