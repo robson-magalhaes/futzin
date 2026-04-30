@@ -6,14 +6,35 @@
 
 @section('header-actions')
 <div class="flex items-center gap-2">
-    <a href="{{ route('matches.create', ['group_id' => $group->id]) }}" class="bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium px-4 py-2 rounded-lg">Agendar Partida</a>
+    <a href="{{ route('matches.create', ['group_id' => $group->id]) }}"
+       class="w-10 h-10 rounded-lg bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center"
+       title="Agendar Partida" aria-label="Agendar Partida">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+    </a>
     @if($userRole === 'admin')
-    <a href="{{ route('groups.edit', $group) }}" class="bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium px-4 py-2 rounded-lg">Editar Grupo</a>
+    <a href="{{ route('groups.edit', $group) }}"
+       class="w-10 h-10 rounded-lg bg-slate-700 hover:bg-slate-600 text-white flex items-center justify-center"
+       title="Editar Grupo" aria-label="Editar Grupo">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+    </a>
+    <a href="{{ route('groups.members.manage', $group) }}"
+       class="w-10 h-10 rounded-lg bg-amber-700 hover:bg-amber-600 text-white flex items-center justify-center"
+       title="Bloquear e Desbloquear Jogadores" aria-label="Bloquear e Desbloquear Jogadores">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c1.657 0 3-1.567 3-3.5S13.657 4 12 4s-3 1.567-3 3.5 1.343 3.5 3 3.5zm0 0v2m0 0l-4 4m4-4l4 4"/></svg>
+    </a>
+    <button type="button"
+       class="w-10 h-10 rounded-lg bg-purple-700 hover:bg-purple-600 text-white flex items-center justify-center"
+       title="Historico de Enquetes" aria-label="Historico de Enquetes"
+       onclick="openPollHistoryModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    </button>
     @endif
     @if(auth()->id() !== $group->user_id)
     <form method="POST" action="{{ route('groups.leave', $group) }}" onsubmit="return confirm('Deseja realmente sair deste grupo?');">
         @csrf
-        <button class="bg-red-700 hover:bg-red-600 text-white text-sm font-medium px-4 py-2 rounded-lg">Sair do Grupo</button>
+        <button class="w-10 h-10 rounded-lg bg-red-700 hover:bg-red-600 text-white flex items-center justify-center" title="Sair do Grupo" aria-label="Sair do Grupo">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H6a2 2 0 01-2-2V7a2 2 0 012-2h5a2 2 0 012 2v1"/></svg>
+        </button>
     </form>
     @endif
 </div>
@@ -44,51 +65,16 @@
 
         <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
             <h3 class="text-white font-semibold mb-3">Membros ({{ $group->members->count() }})</h3>
-            <div class="space-y-2 max-h-64 overflow-y-auto pr-1">
+            <div class="space-y-2 max-h-52 overflow-y-auto pr-1">
                 @foreach($group->members as $member)
                 <div class="flex items-center justify-between gap-3 text-sm bg-slate-800/60 rounded-lg px-3 py-2">
                     <div class="min-w-0">
                         <p class="text-slate-200 truncate">{{ $member->name }}</p>
                         <span class="text-xs {{ $member->pivot->role === 'admin' ? 'text-amber-400' : 'text-slate-500' }}">{{ $member->pivot->role }}</span>
                     </div>
-
-                    @if($userRole === 'admin' && $member->pivot->role === 'player' && $member->id !== auth()->id())
-                    <div class="flex items-center gap-2 shrink-0">
-                        <form method="POST" action="{{ route('groups.members.remove', [$group, $member]) }}" onsubmit="return confirm('Remover este jogador do grupo?');">
-                            @csrf
-                            @method('DELETE')
-                            <button class="text-xs text-red-400 hover:text-red-300">Remover</button>
-                        </form>
-                        <form method="POST" action="{{ route('groups.members.block', [$group, $member]) }}" onsubmit="return confirm('Bloquear este jogador de entrar no grupo?');">
-                            @csrf
-                            <button class="text-xs text-amber-400 hover:text-amber-300">Bloquear</button>
-                        </form>
-                    </div>
-                    @endif
                 </div>
                 @endforeach
             </div>
-
-            @if($userRole === 'admin')
-            <div class="mt-4 pt-4 border-t border-slate-800">
-                <h4 class="text-sm text-slate-300 mb-2">Bloqueados</h4>
-                @if($group->blockedUsers->isEmpty())
-                <p class="text-xs text-slate-500">Nenhum jogador bloqueado.</p>
-                @else
-                <div class="space-y-2">
-                    @foreach($group->blockedUsers as $blocked)
-                    <div class="flex items-center justify-between bg-slate-800/60 rounded-lg px-3 py-2">
-                        <span class="text-sm text-slate-200">{{ $blocked->name }}</span>
-                        <form method="POST" action="{{ route('groups.members.unblock', [$group, $blocked]) }}">
-                            @csrf
-                            <button class="text-xs text-emerald-400 hover:text-emerald-300">Desbloquear</button>
-                        </form>
-                    </div>
-                    @endforeach
-                </div>
-                @endif
-            </div>
-            @endif
         </div>
     </div>
 
@@ -129,7 +115,7 @@
     {{-- ============ ENQUETES ============ --}}
     <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
         <div class="flex items-center justify-between mb-4">
-            <h3 class="text-white font-semibold">Enquetes</h3>
+            <h3 class="text-white font-semibold">Enquetes Abertas e da Partida</h3>
         </div>
 
         {{-- Formulário de criação (admin only) --}}
@@ -175,15 +161,15 @@
         @endif
 
         {{-- Lista de enquetes --}}
-        @if($group->polls->isEmpty())
-        <p class="text-slate-500 text-sm">Nenhuma enquete criada ainda.</p>
+        @if($visiblePolls->isEmpty())
+        <p class="text-slate-500 text-sm">Nenhuma enquete aberta ou vinculada a partida.</p>
         @else
         <div class="space-y-2">
-            @foreach($group->polls as $poll)
+            @foreach($visiblePolls as $poll)
             <a href="{{ route('polls.show', $poll) }}" class="flex items-center justify-between bg-slate-800/70 hover:bg-slate-800 rounded-lg px-4 py-3 transition-colors">
                 <div>
                     <p class="text-sm text-white font-medium">{{ $poll->title }}</p>
-                    <p class="text-xs text-slate-500">{{ $poll->type === 'mvp' ? 'MVP' : 'Notas' }} · {{ $poll->creator->name }} · {{ $poll->created_at->diffForHumans() }}</p>
+                    <p class="text-xs text-slate-500">{{ $poll->type === 'mvp' ? 'MVP' : 'Notas' }} · {{ $poll->creator->name }} · {{ $poll->match?->title ?: 'Sem partida' }}</p>
                 </div>
                 <span class="text-xs px-2 py-1 rounded-full {{ $poll->isOpen() ? 'bg-emerald-900 text-emerald-400' : 'bg-slate-700 text-slate-400' }}">
                     {{ $poll->isOpen() ? 'Aberta' : 'Encerrada' }}
@@ -227,4 +213,42 @@
         </div>
     </div>
 </div>
+
+@if($userRole === 'admin')
+<div id="poll-history-modal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/70" onclick="closePollHistoryModal()"></div>
+    <div class="relative max-w-2xl mx-auto mt-20 bg-slate-900 border border-slate-800 rounded-xl p-5 max-h-[75vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-white font-semibold">Historico de Enquetes</h3>
+            <button class="text-slate-400 hover:text-white" onclick="closePollHistoryModal()">Fechar</button>
+        </div>
+
+        @if($pollHistory->isEmpty())
+        <p class="text-slate-500 text-sm">Nenhuma enquete encerrada no historico.</p>
+        @else
+        <div class="space-y-2">
+            @foreach($pollHistory as $poll)
+            <a href="{{ route('polls.show', $poll) }}" class="flex items-center justify-between bg-slate-800/70 hover:bg-slate-800 rounded-lg px-4 py-3 transition-colors">
+                <div>
+                    <p class="text-sm text-white font-medium">{{ $poll->title }}</p>
+                    <p class="text-xs text-slate-500">{{ $poll->type === 'mvp' ? 'MVP' : 'Notas' }} · {{ $poll->creator->name }} · {{ $poll->created_at->diffForHumans() }}</p>
+                </div>
+                <span class="text-xs px-2 py-1 rounded-full bg-slate-700 text-slate-300">Encerrada</span>
+            </a>
+            @endforeach
+        </div>
+        @endif
+    </div>
+</div>
+
+<script>
+function openPollHistoryModal() {
+    document.getElementById('poll-history-modal').classList.remove('hidden');
+}
+
+function closePollHistoryModal() {
+    document.getElementById('poll-history-modal').classList.add('hidden');
+}
+</script>
+@endif
 @endsection

@@ -50,13 +50,31 @@ class GroupController extends Controller
             'blockedUsers:id,name,email',
             'matches' => fn($q) => $q->orderByDesc('scheduled_at')->limit(5),
             'posts' => fn($q) => $q->with('user:id,name,position')->orderByDesc('created_at')->limit(20),
-            'polls' => fn($q) => $q->with('creator:id,name')->orderByDesc('created_at')->limit(10),
+            'polls' => fn($q) => $q->with('creator:id,name', 'match:id,title,scheduled_at,status')->orderByDesc('created_at')->limit(30),
         ]);
 
         $userRole = $member->pivot->role;
         $rankings = $group->rankings()->with('user:id,name,position')->orderBy('position')->get();
 
-        return view('groups.show', compact('group', 'userRole', 'rankings'));
+        $visiblePolls = $group->polls
+            ->filter(fn($poll) => $poll->isOpen() || ($poll->match && $poll->match->status !== 'finished'))
+            ->values();
+
+        $pollHistory = $group->polls
+            ->filter(fn($poll) => !$poll->isOpen())
+            ->values();
+
+        return view('groups.show', compact('group', 'userRole', 'rankings', 'visiblePolls', 'pollHistory'));
+    }
+
+    public function membersManagement(Group $group)
+    {
+        $member = $group->members()->where('user_id', auth()->id())->first();
+        abort_unless($member && $member->pivot->role === 'admin', 403, 'Apenas administradores podem gerenciar jogadores.');
+
+        $group->load(['members', 'blockedUsers:id,name,email']);
+
+        return view('groups.members-management', compact('group'));
     }
 
     public function edit(Group $group)

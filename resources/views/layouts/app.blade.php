@@ -114,6 +114,19 @@
                 </svg>
             </button>
 
+            @if(!request()->routeIs('dashboard'))
+            <button
+                type="button"
+                onclick="if (window.history.length > 1) { window.history.back(); } else { window.location.href='{{ route('dashboard') }}'; }"
+                class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                title="Voltar"
+                aria-label="Voltar">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            @endif
+
             <div class="flex-1">
                 <h1 class="text-base font-semibold text-white">@yield('page-title', 'Dashboard')</h1>
                 @hasSection('breadcrumb')
