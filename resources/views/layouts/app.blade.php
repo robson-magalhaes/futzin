@@ -118,14 +118,12 @@
             @if(!request()->routeIs('dashboard'))
             <button
                 type="button"
-                onclick="futzinBack('{{ route('dashboard') }}')"
-                class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-                title="Voltar"
+                onclick="futzinBack('{{ route('groups.index') }}')"
+                class="p-2 rounded-lg text-slate-400"
                 aria-label="Voltar">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                 </svg>
-                <span class="hidden sm:inline text-sm font-medium">Voltar</span>
             </button>
             @endif
 

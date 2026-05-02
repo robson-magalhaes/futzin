@@ -5,11 +5,11 @@
 
 @section('header-actions')
 <a href="{{ route('groups.create') }}"
-   class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors shadow-lg shadow-emerald-900/20">
-    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+   class="w-10 h-10 rounded-lg bg-emerald-600 text-white flex items-center justify-center"
+   title="Novo Grupo" aria-label="Novo Grupo">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
     </svg>
-    Novo Grupo
 </a>
 @endsection
 

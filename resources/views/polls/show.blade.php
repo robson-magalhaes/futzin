@@ -5,15 +5,17 @@
 @section('breadcrumb', 'Grupos / ' . $poll->group->name . ' / Enquete')
 
 @section('header-actions')
-<div class="flex items-center gap-2">
-    <a href="{{ route('groups.show', $poll->group) }}" class="bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium px-4 py-2 rounded-lg">← Voltar ao Grupo</a>
-    @if($userRole === 'admin' && $poll->isOpen())
-    <form method="POST" action="{{ route('polls.close', $poll) }}">
-        @csrf
-        <button class="bg-red-700 hover:bg-red-600 text-white text-sm font-medium px-4 py-2 rounded-lg">Encerrar Enquete</button>
-    </form>
-    @endif
-</div>
+@if($userRole === 'admin' && $poll->isOpen())
+<form method="POST" action="{{ route('polls.close', $poll) }}">
+    @csrf
+    <button class="w-10 h-10 rounded-lg bg-red-700 text-white flex items-center justify-center"
+            title="Encerrar Enquete" aria-label="Encerrar Enquete">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+        </svg>
+    </button>
+</form>
+@endif
 @endsection
 
 @section('content')

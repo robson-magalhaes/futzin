@@ -4,8 +4,12 @@
 @section('page-title', 'Meus Grupos')
 
 @section('header-actions')
-<a href="{{ route('groups.create') }}" class="bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors">
-    Novo Grupo
+<a href="{{ route('groups.create') }}"
+   class="w-10 h-10 rounded-lg bg-emerald-600 text-white flex items-center justify-center"
+   title="Novo Grupo" aria-label="Novo Grupo">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+    </svg>
 </a>
 @endsection
 
