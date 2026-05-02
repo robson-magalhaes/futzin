@@ -44,6 +44,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/groups/{group}/leave', [GroupController::class, 'leave'])->name('groups.leave');
     Route::post('/groups/{group}/generate-code', [GroupController::class, 'generateCode'])->name('groups.generate-code');
     Route::post('/groups/{group}/confirm-presence', [GroupController::class, 'confirmPresence'])->name('groups.confirm-presence');
+    Route::post('/groups/{group}/start-round', [GroupController::class, 'startRound'])->name('groups.start-round');
+    Route::post('/groups/{group}/report-daily-payment', [GroupController::class, 'reportDailyPayment'])->name('groups.report-daily-payment');
 
     // Group posts
     Route::post('/groups/{group}/posts', [GroupController::class, 'storePost'])->name('groups.posts.store');

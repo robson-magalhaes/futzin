@@ -14,7 +14,7 @@ class DashboardController extends Controller
         $groups = $user->groups()->with('owner')->withCount('members')->get();
 
         $upcomingMatches = FootballMatch::whereIn('group_id', $groups->pluck('id'))
-            ->where('status', 'created')
+            ->where('status', 'pending')
             ->where('scheduled_at', '>=', now())
             ->with('group')
             ->orderBy('scheduled_at')

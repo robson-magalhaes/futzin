@@ -33,15 +33,17 @@ class PayoutController extends Controller
     public function markAsPaid(Request $request, Payout $payout)
     {
         $group = $payout->group;
-        abort_if($group->user_id !== auth()->id(), 403, 'Sem permissão.');
+        $isOwner  = $group->user_id === auth()->id();
+        $isSelf   = $payout->user_id === auth()->id();
+        abort_if(!$isOwner && !$isSelf, 403, 'Sem permissão.');
 
         $validated = $request->validate([
             'payment_method' => 'nullable|string|max:100',
         ]);
 
         $payout->update([
-            'status' => 'paid',
-            'paid_at' => now(),
+            'status'         => 'paid',
+            'paid_at'        => now(),
             'payment_method' => $validated['payment_method'] ?? null,
         ]);
 

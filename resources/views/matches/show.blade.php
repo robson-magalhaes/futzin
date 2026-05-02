@@ -5,14 +5,6 @@
 @section('breadcrumb', 'Partidas / Detalhes')
 
 @section('header-actions')
-<div class="flex items-center gap-2">
-    <a href="{{ route('matches.teams.form', $match) }}" class="bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium px-4 py-2 rounded-lg">
-        {{ $userRole === 'admin' ? 'Gerar Times' : 'Ver Times' }}
-    </a>
-    @if($userRole === 'admin' && $match->status !== 'finished')
-    <a href="{{ route('matches.finish.form', $match) }}" class="bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium px-4 py-2 rounded-lg">Finalizar Partida</a>
-    @endif
-</div>
 @endsection
 
 @section('content')
@@ -35,6 +27,15 @@
                 <p class="text-slate-500">Status</p>
                 <p class="{{ $match->status === 'finished' ? 'text-emerald-400' : 'text-amber-400' }}">{{ $match->status === 'finished' ? 'Finalizada' : 'Agendada' }}</p>
             </div>
+        </div>
+
+        <div class="mt-4 pt-4 border-t border-slate-800 flex gap-3">
+            <a href="{{ route('matches.teams.form', $match) }}" class="flex-1 text-center bg-slate-700 text-white text-sm font-medium px-4 py-2.5 rounded-lg">
+                {{ $userRole === 'admin' ? 'Gerar Times' : 'Ver Times' }}
+            </a>
+            @if($userRole === 'admin' && $match->status !== 'finished')
+            <a href="{{ route('matches.finish.form', $match) }}" class="flex-1 text-center bg-emerald-600 text-white text-sm font-medium px-4 py-2.5 rounded-lg">Finalizar Partida</a>
+            @endif
         </div>
     </div>
 

@@ -15,9 +15,14 @@ class Group extends Model
         'name',
         'description',
         'monthly_fee',
+        'fee_type',
         'status',
         'join_code',
         'ranking_config',
+        'confirmation_lock_at',
+        'schedule_type',
+        'weekly_day',
+        'weekly_time',
     ];
 
     /** Pesos padrão caso o grupo não tenha config definida */
@@ -44,8 +49,9 @@ class Group extends Model
     }
 
     protected $casts = [
-        'monthly_fee'    => 'decimal:2',
-        'ranking_config' => 'array',
+        'monthly_fee'          => 'decimal:2',
+        'ranking_config'       => 'array',
+        'weekly_day'           => 'integer',
     ];
 
     public function owner(): BelongsTo

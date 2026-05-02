@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Group;
+use App\Models\Payout;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class GroupController extends Controller
@@ -30,7 +33,10 @@ class GroupController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:500',
             'monthly_fee' => 'required|numeric|min:0',
+            'fee_type' => 'nullable|in:monthly,daily',
         ]);
+
+        $validated['fee_type'] = $validated['fee_type'] ?? 'monthly';
 
         $group = auth()->user()->ownedGroups()->create($validated);
         auth()->user()->groups()->attach($group, ['role' => 'admin']);
@@ -53,7 +59,27 @@ class GroupController extends Controller
         ]);
 
         $userRole = $member->pivot->role;
+        $userPresenceConfirmed = (bool) $member->pivot->presence_confirmed;
         $rankings = $group->rankings()->with('user:id,name,position')->orderBy('position')->get();
+
+        $userPayout = Payout::where('user_id', auth()->id())
+            ->where('group_id', $group->id)
+            ->whereIn('status', ['pending', 'overdue'])
+            ->orderByDesc('due_date')
+            ->first();
+
+        $userDailyPaidToday = $group->fee_type === 'daily'
+            ? Payout::where('user_id', auth()->id())
+                ->where('group_id', $group->id)
+                ->where('status', 'paid')
+                ->whereDate('paid_at', today())
+                ->exists()
+            : false;
+
+        $currentOpenMatch = $group->matches()
+            ->whereIn('status', ['pending', 'in_progress'])
+            ->latest('scheduled_at')
+            ->first();
 
         $visiblePolls = $group->polls
             ->filter(fn($poll) => $poll->isOpen() || ($poll->match && $poll->match->status !== 'finished'))
@@ -63,7 +89,7 @@ class GroupController extends Controller
             ->filter(fn($poll) => !$poll->isOpen())
             ->values();
 
-        return view('groups.show', compact('group', 'userRole', 'rankings', 'visiblePolls', 'pollHistory'));
+        return view('groups.show', compact('group', 'userRole', 'userPresenceConfirmed', 'rankings', 'visiblePolls', 'pollHistory', 'userPayout', 'userDailyPaidToday', 'currentOpenMatch'));
     }
 
     public function membersManagement(Group $group)
@@ -90,7 +116,12 @@ class GroupController extends Controller
             'name'        => 'required|string|max:255',
             'description' => 'nullable|string|max:500',
             'monthly_fee' => 'required|numeric|min:0',
+            'fee_type'    => 'nullable|in:monthly,daily',
             'status'      => 'required|in:active,inactive',
+            'schedule_type'       => 'nullable|in:scheduled,weekly',
+            'weekly_day'          => 'nullable|integer|min:0|max:6',
+            'weekly_time'         => 'nullable|date_format:H:i',
+            'confirmation_lock_at' => 'nullable|date_format:H:i',
             'ranking_config.win_weight'     => 'nullable|numeric|min:0|max:100',
             'ranking_config.penalty_weight' => 'nullable|numeric|min:0|max:100',
             'ranking_config.mvp_weight'     => 'nullable|numeric|min:0|max:100',
@@ -105,11 +136,16 @@ class GroupController extends Controller
         ], fn($v) => $v !== null);
 
         $group->update([
-            'name'           => $validated['name'],
-            'description'    => $validated['description'],
-            'monthly_fee'    => $validated['monthly_fee'],
-            'status'         => $validated['status'],
-            'ranking_config' => $rankingConfig ?: null,
+            'name'                 => $validated['name'],
+            'description'         => $validated['description'],
+            'monthly_fee'         => $validated['monthly_fee'],
+            'fee_type'            => $validated['fee_type'] ?? 'monthly',
+            'status'              => $validated['status'],
+            'ranking_config'      => $rankingConfig ?: null,
+            'schedule_type'       => $validated['schedule_type'] ?? 'scheduled',
+            'weekly_day'          => $validated['weekly_day'] ?? null,
+            'weekly_time'         => $validated['weekly_time'] ?? null,
+            'confirmation_lock_at' => $validated['confirmation_lock_at'] ?? null,
         ]);
 
         return redirect()->route('groups.show', $group)
@@ -277,9 +313,100 @@ class GroupController extends Controller
         $member = $group->members()->where('user_id', auth()->id())->first();
         abort_unless($member, 403);
 
-        auth()->user()->groups()->updateExistingPivot($group->id, ['presence_confirmed' => true]);
+        $isConfirmed = (bool) $member->pivot->presence_confirmed;
 
-        return back()->with('success', 'Presença confirmada!');
+        // Para grupos semanais, só permite confirmar se houver rodada aberta
+        if ($group->schedule_type === 'weekly' && !$isConfirmed) {
+            $hasOpen = $group->matches()->whereIn('status', ['pending', 'in_progress'])->exists();
+            if (!$hasOpen) {
+                return back()->withErrors(['presence' => 'Nenhuma rodada aberta para confirmar presença.']);
+            }
+        }
+
+        // Se está tentando cancelar confirmação, verifica o horário de bloqueio
+        if ($isConfirmed && $group->confirmation_lock_at) {
+            $weeklyDay = $group->weekly_day; // null para grupos scheduled
+            $isMatchDay = $weeklyDay === null || now()->dayOfWeek === $weeklyDay;
+
+            if ($isMatchDay) {
+                $lockTime = Carbon::today()->setTimeFromTimeString($group->confirmation_lock_at);
+                if (now()->greaterThan($lockTime)) {
+                    return back()->withErrors(['presence' => 'Prazo para cancelar confirmação já encerrou.']);
+                }
+            }
+        }
+
+        DB::table('user_groups')
+            ->where('user_id', auth()->id())
+            ->where('group_id', $group->id)
+            ->update(['presence_confirmed' => $isConfirmed ? 0 : 1]);
+
+        $msg = $isConfirmed ? 'Confirmação cancelada.' : 'Presença confirmada!';
+        return back()->with('success', $msg);
+    }
+
+    public function startRound(Group $group)
+    {
+        $member = $group->members()->where('user_id', auth()->id())->first();
+        abort_unless($member && $member->pivot->role === 'admin', 403, 'Apenas administradores podem iniciar rodadas.');
+        abort_unless($group->schedule_type === 'weekly', 422, 'Grupo não configurado como semanal.');
+
+        $openMatch = $group->matches()->whereIn('status', ['pending', 'in_progress'])->first();
+        if ($openMatch) {
+            return back()->withErrors(['round' => 'Já existe uma rodada ativa.']);
+        }
+
+        // Calcular data da próxima ocorrência
+        $day  = $group->weekly_day ?? 0;
+        $time = $group->weekly_time ?? '20:00:00';
+        [$hour, $minute] = explode(':', $time);
+
+        $scheduledAt = Carbon::now()->startOfWeek(Carbon::SUNDAY)->addDays($day)->setTime((int) $hour, (int) $minute);
+        if ($scheduledAt->isPast()) {
+            $scheduledAt->addWeek();
+        }
+
+        // Resetar presença de todos os membros
+        DB::table('user_groups')->where('group_id', $group->id)->update(['presence_confirmed' => false]);
+
+        $match = $group->matches()->create([
+            'scheduled_at' => $scheduledAt,
+            'status'       => 'pending',
+            'title'        => 'Rodada ' . $scheduledAt->format('d/m/Y'),
+        ]);
+
+        return redirect()->route('matches.show', $match)
+            ->with('success', 'Rodada iniciada! Jogadores já podem confirmar presença.');
+    }
+
+    public function reportDailyPayment(Group $group)
+    {
+        $member = $group->members()->where('user_id', auth()->id())->first();
+        abort_unless($member, 403);
+        abort_unless($group->fee_type === 'daily', 422, 'Grupo não usa cobrança diária.');
+
+        // Evita registrar mais de uma diária no mesmo dia
+        $alreadyPaid = Payout::where('user_id', auth()->id())
+            ->where('group_id', $group->id)
+            ->where('status', 'paid')
+            ->whereDate('paid_at', today())
+            ->exists();
+
+        if ($alreadyPaid) {
+            return back()->with('info', 'Você já registrou o pagamento da diária hoje.');
+        }
+
+        Payout::create([
+            'user_id'        => auth()->id(),
+            'group_id'       => $group->id,
+            'due_date'       => now(),
+            'amount'         => $group->monthly_fee,
+            'status'         => 'paid',
+            'paid_at'        => now(),
+            'payment_method' => 'auto-report',
+        ]);
+
+        return back()->with('success', 'Pagamento da diária registrado!');
     }
 
     public function storePost(Request $request, Group $group)
