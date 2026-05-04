@@ -396,7 +396,7 @@
 
         <div class="space-y-2">
             {{-- Agendar Partida / Ver partida atual --}}
-            @if($group->schedule_type === 'scheduled')
+            @if($group->schedule_type === 'scheduled' && $userRole === 'admin')
             <a href="{{ route('matches.create', ['group_id' => $group->id]) }}"
                 class="flex items-center gap-3 w-full px-4 py-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-white transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
