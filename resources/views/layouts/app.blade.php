@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Futzin') — Futzin</title>
+    <link rel="icon" type="image/png" href="{{ Vite::asset('resources/imagens/icone_app.png') }}">
+    <link rel="apple-touch-icon" href="{{ Vite::asset('resources/imagens/icone_app.png') }}">
     @vite('resources/css/app.css')
     <script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
@@ -33,10 +35,10 @@
 
         {{-- Logo --}}
         <div class="flex items-center gap-3 px-6 py-5 border-b border-slate-800">
-            <div class="w-9 h-9 bg-linear-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center text-lg shadow-lg shadow-emerald-900/40">
-                ⚽
-            </div>
-            <span class="text-lg font-bold tracking-tight text-white">Futzin</span>
+            <img src="{{ Vite::asset('resources/imagens/icone_app.png') }}"
+                 alt="Logo do Futzin"
+                 class="h-10 w-10 rounded-xl object-cover shadow-lg shadow-emerald-950/30">
+            <span class="text-xl font-extrabold tracking-wide text-white">Futzin</span>
         </div>
 
         {{-- Navigation --}}

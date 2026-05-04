@@ -177,5 +177,12 @@
     </div>
     @endif
 
+    <div class="pt-2">
+        <p class="text-center text-xs text-slate-500">
+            © Todos os direitos reservados
+            <a href="https://dev-robsonmagalhaes.vercel.app/" target="_blank" rel="noopener noreferrer" class="text-emerald-400 hover:text-emerald-300 transition-colors">Robson Magalhães</a>
+        </p>
+    </div>
+
 </div>
 @endsection
