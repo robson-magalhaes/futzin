@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\MatchController;
 use App\Http\Controllers\PollController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RankingController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\PayoutController;
@@ -78,4 +79,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/payouts', [PayoutController::class, 'index'])->name('payouts.index');
     Route::post('/payouts/{payout}/mark-paid', [PayoutController::class, 'markAsPaid'])->name('payouts.mark-paid');
     Route::get('/groups/{group}/payouts', [PayoutController::class, 'groupPayouts'])->name('payouts.group');
+
+    // Profile
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 });
