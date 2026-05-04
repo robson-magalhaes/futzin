@@ -24,7 +24,7 @@
         <p class="text-slate-400 text-sm mt-1">
             {{ now()->locale('pt_BR')->isoFormat('dddd, D [de] MMMM [de] YYYY') }}
             @if(!auth()->user()->activeSubscription())
-            · <a href="{{ route('subscription.index') }}" class="text-emerald-400 hover:text-emerald-300 transition-colors">Ative um plano para desbloquear todos os recursos →</a>
+            <!-- · <a href="{{ route('subscription.index') }}" class="text-emerald-400 hover:text-emerald-300 transition-colors">Ative um plano para desbloquear todos os recursos →</a> -->
             @endif
         </p>
     </div>
