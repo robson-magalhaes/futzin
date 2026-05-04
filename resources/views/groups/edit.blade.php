@@ -189,7 +189,7 @@
         </div>
     </form>
 
-    <form method="POST" action="{{ route('groups.destroy', $group) }}" class="bg-red-950/20 border border-red-800/40 rounded-xl p-4">
+    <form method="POST" action="{{ route('groups.destroy', $group) }}" class="bg-red-950/20 border border-red-800/40 rounded-xl p-4" id="delete-group-form">
         @csrf
         @method('DELETE')
         <div class="flex items-center justify-between gap-3">
@@ -197,7 +197,7 @@
                 <p class="text-red-300 text-sm font-medium">Excluir grupo</p>
                 <p class="text-red-400/80 text-xs">Essa ação não pode ser desfeita.</p>
             </div>
-            <button type="submit" onclick="return confirm('Tem certeza que deseja excluir este grupo?')"
+            <button type="button" onclick="confirmDeleteGroup()"
                     class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg text-sm">Excluir</button>
         </div>
     </form>
@@ -219,5 +219,24 @@ document.querySelectorAll('.preset-btn').forEach(btn => {
         });
     });
 });
+
+function confirmDeleteGroup() {
+    Swal.fire({
+        title: 'Excluir grupo?',
+        text: 'Essa ação não pode ser desfeita. Todos os dados do grupo serão removidos permanentemente.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#475569',
+        confirmButtonText: 'Sim, excluir',
+        cancelButtonText: 'Cancelar',
+        background: '#0f172a',
+        color: '#e2e8f0',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById('delete-group-form').submit();
+        }
+    });
+}
 </script>
 @endsection
