@@ -14,13 +14,20 @@ return new class extends Migration
         if (!Schema::hasTable('poll_votes')) {
             Schema::create('poll_votes', function (Blueprint $table) {
                 $table->id();
-                $table->foreignId('poll_id')->constrained('polls')->cascadeOnDelete();
+                $table->unsignedBigInteger('poll_id');
                 $table->foreignId('voter_id')->constrained('users')->cascadeOnDelete();
                 $table->foreignId('candidate_id')->nullable()->constrained('users')->nullOnDelete();
                 $table->unsignedTinyInteger('rating')->nullable()->comment('1-10 para enquete de notas');
                 $table->timestamps();
                 $table->unique(['poll_id', 'voter_id']);
             });
+
+            // A migration de polls tem o mesmo timestamp e pode rodar depois em alguns bancos.
+            if (Schema::hasTable('polls')) {
+                Schema::table('poll_votes', function (Blueprint $table) {
+                    $table->foreign('poll_id')->references('id')->on('polls')->cascadeOnDelete();
+                });
+            }
         }
     }
 

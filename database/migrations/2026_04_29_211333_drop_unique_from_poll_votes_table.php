@@ -74,11 +74,11 @@ return new class extends Migration
 
     private function foreignKeyExists(string $table, string $constraintName): bool
     {
-        $database = DB::getDatabaseName();
+        $schema = $this->getSchemaName();
 
         $result = DB::selectOne(
             'SELECT CONSTRAINT_NAME FROM information_schema.TABLE_CONSTRAINTS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND CONSTRAINT_TYPE = ? AND CONSTRAINT_NAME = ? LIMIT 1',
-            [$database, $table, 'FOREIGN KEY', $constraintName]
+            [$schema, $table, 'FOREIGN KEY', $constraintName]
         );
 
         return $result !== null;
@@ -86,13 +86,20 @@ return new class extends Migration
 
     private function indexExists(string $table, string $indexName): bool
     {
-        $database = DB::getDatabaseName();
+        $schema = $this->getSchemaName();
 
         $result = DB::selectOne(
-            'SELECT INDEX_NAME FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND INDEX_NAME = ? LIMIT 1',
-            [$database, $table, $indexName]
+            'SELECT CONSTRAINT_NAME FROM information_schema.TABLE_CONSTRAINTS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND CONSTRAINT_TYPE = ? AND CONSTRAINT_NAME = ? LIMIT 1',
+            [$schema, $table, 'UNIQUE', $indexName]
         );
 
         return $result !== null;
+    }
+
+    private function getSchemaName(): string
+    {
+        return DB::getDriverName() === 'pgsql'
+            ? (string) env('DB_SCHEMA', 'public')
+            : (string) DB::getDatabaseName();
     }
 };
