@@ -62,6 +62,43 @@ Penalidades:
 
 ## 🚀 Instalação Rápida
 
+## ▲ Deploy na Vercel (PostgreSQL)
+
+Este projeto está pronto para rodar na Vercel com `vercel.json` e função PHP em `api/index.php`.
+
+### Passo a passo
+
+1. Crie um projeto na Vercel e conecte este repositório.
+2. Adicione integração de banco PostgreSQL (Vercel Postgres ou provedor externo).
+3. Configure as variáveis de ambiente no projeto Vercel (base: `.env.vercel.example`):
+
+```env
+APP_NAME=Futzin
+APP_ENV=production
+APP_DEBUG=false
+APP_KEY=base64:...   # gerar com php artisan key:generate --show
+APP_URL=https://SEU_DOMINIO.vercel.app
+
+DB_CONNECTION=pgsql
+DATABASE_URL=postgres://user:pass@host:5432/db
+DB_SSLMODE=require
+
+SESSION_DRIVER=database
+CACHE_STORE=database
+QUEUE_CONNECTION=database
+```
+
+4. Faça o deploy.
+5. Rode as migrations no banco de produção:
+
+```bash
+php artisan migrate --force
+```
+
+Observações:
+- A aplicação agora aceita automaticamente `DB_URL`, `DATABASE_URL` e `POSTGRES_URL`.
+- Se `DB_CONNECTION` não estiver definido e existir URL de banco, o Laravel usa `pgsql` automaticamente.
+
 ## 🚂 Deploy na Railway
 
 Este projeto já está preparado para Railway com os arquivos:
