@@ -1,11 +1,10 @@
 {
-  "outputDirectory": "public",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/api/index.php" }
+  "builds": [
+    { "src": "public/index.php", "use": "vercel-php@0.7.3" },
+    { "src": "public/**", "use": "@vercel/static" }
   ],
-  "functions": {
-    "api/index.php": {
-      "runtime": "vercel-php@0.7.3"
-    }
-  }
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "public/index.php" }
+  ]
 }
