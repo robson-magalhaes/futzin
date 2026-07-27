@@ -1,6 +1,4 @@
 {
-  "framework": null,
-  "buildCommand": "composer install --no-dev --optimize-autoloader",
   "outputDirectory": "public",
   "rewrites": [
     { "source": "/(.*)", "destination": "/api/index.php" }
