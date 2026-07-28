@@ -1,17 +1,5 @@
 <?php
 
-ini_set('display_errors', '1');
-error_reporting(E_ALL);
-
-register_shutdown_function(function () {
-    $error = error_get_last();
-    if ($error !== null) {
-        header('Content-Type: text/plain');
-        echo "FATAL ERROR CAPTURED:\n";
-        echo print_r($error, true);
-    }
-});
-
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 
