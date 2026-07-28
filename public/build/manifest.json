@@ -1,0 +1,15 @@
+{
+  "resources/css/app.css": {
+    "file": "assets/app-QqAbKvnD.css",
+    "name": "app",
+    "names": [
+      "app.css"
+    ],
+    "src": "resources/css/app.css",
+    "isEntry": true
+  },
+  "resources/imagens/icone_app.png": {
+    "file": "assets/icone_app-CMyznDfW.png",
+    "src": "resources/imagens/icone_app.png"
+  }
+}
